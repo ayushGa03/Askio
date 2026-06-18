@@ -19,7 +19,7 @@ app.use(express.json());
 
 // CORS - allow frontend dev server
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:3000", process.env.SERVER_URL],
+  origin: [process.env.SERVER_URL],
   credentials: true,
 }));
 
