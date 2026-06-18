@@ -3,13 +3,12 @@ import app from "./src/app.js"
 import db from "./config/Databse.js"
 import cache from "./config/cache.js"
 import cors from "cors"
-import dotenv from "dotenv";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import http from "http";
 import {connectToSocket} from "./src/sokets/soketsio.js";
 
-dotenv.config();
+
 app.use(cors({
     origin: process.env.SERVER_URL,
     credentials: true,
