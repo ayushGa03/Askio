@@ -1,0 +1,6 @@
+1) In this i have used the readline for processing the input and output from the user
+2) lanchain ---> ishka use humlogh aiservices provider + jo server hai ushke becch baat chit ko acche karne me help karne ke liye use karte hai
+3) we use the HUMANMESSAGE -- iska kaam hai memory create karna like ai services hume bas input me response deti hai memory nhi create karti hai ushke, liye hume humanMessage by langchain use karna hota hai taki server side me history create ho.
+4) jaise hum apne ai ko bole email send karne ko toh voh directely email nhi send kar shkta hai ushke liye hum tool create karte hai langchain package ka use karte hue hi and zod package se hum ai ke output ko ek proper structure provide karte hai taki function calling ke samy ko problem nhi ho..
+5) ab tool aur ai like jo bhi use kara hai eg gemeni toh ab tool aur gemeni baat kargea agent ke help se 
+6) Tavliy ek website hai jo service provide karti ishka kaam basically yeh hai ki cizo ko internet me search karna and then usee agents ko handover karna dena..
