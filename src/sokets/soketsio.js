@@ -1,12 +1,14 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import dotenve from "dotenv"
+dotenve.config();
 
 let io;
 
 export function connectToSocket(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.VITE_BASE_URL,
       credentials: true,
     },
   });
