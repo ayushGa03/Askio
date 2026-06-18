@@ -7,13 +7,10 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import http from "http";
 import {connectToSocket} from "./src/sokets/soketsio.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 
-app.use(cors({
-    origin: process.env.SERVER_URL,
-    credentials: true,
-    methods: ["GET","POST","PUT","DELETE"],
-}))
 const httpServer = http.createServer(app);
 db()
 

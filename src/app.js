@@ -17,9 +17,14 @@ dotenv.config();
 app.use(cookieParser());
 app.use(express.json());
 
-// CORS - allow frontend dev server
+// CORS - allow frontend dev server and production
 app.use(cors({
-  origin: [process.env.SERVER_URL],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    // Allow any origin for now to prevent CORS issues (or specify your Render URL)
+    return callback(null, true);
+  },
   credentials: true,
 }));
 
