@@ -16,7 +16,7 @@ app.use(cors({
     methods: ["GET","POST","PUT","DELETE"],
 }))
 const httpServer = http.createServer(app);
-db();
+db()
 
 const port = 3030;
 connectToSocket(httpServer);// called the socket connection function and passed the http server to it

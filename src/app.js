@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import dotenv from "dotenv"
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import cors from "cors";
@@ -12,13 +12,14 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 const app = express();
 app.use(morgan("dev"))
+dotenv.config();
 
 app.use(cookieParser());
 app.use(express.json());
 
 // CORS - allow frontend dev server
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:3000"],
+  origin: ["http://localhost:5173", "http://localhost:3000", process.env.SERVER_URL],
   credentials: true,
 }));
 
