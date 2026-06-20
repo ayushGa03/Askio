@@ -96,18 +96,18 @@ export const sendVerificationEmail = async (email, username, verificationToken) 
 
     return await sendMail({
       to: email,
-      subject: \`Email Verification - Welcome \${username}!\`,
+      subject: `Email Verification - Welcome ${username}!`,
       html: htmlContent,
     });
   } catch (error) {
-    console.error(\`✗ Error sending verification email to \${email}:\`, error.message);
+    console.error(`✗ Error sending verification email to ${email}:`, error.message);
     return { success: false, error: error.message };
   }
 };
 
 export const sendWelcomeEmail = async (email, username) => {
   try {
-    const htmlContent = \`
+    const htmlContent = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -132,8 +132,8 @@ export const sendWelcomeEmail = async (email, username) => {
               <p>You can now log in to your account and start exploring all the features we have to offer.</p>
               <p><strong>Account Details:</strong></p>
               <ul>
-                <li>Email: \${email}</li>
-                <li>Username: \${username}</li>
+                <li>Email: ${email}</li>
+                <li>Username: ${username}</li>
               </ul>
               <p>If you have any questions or need assistance, feel free to contact our support team.</p>
               <p>Happy exploring! 🚀</p>
@@ -145,15 +145,15 @@ export const sendWelcomeEmail = async (email, username) => {
           </div>
         </body>
       </html>
-    \`;
+    `;
 
     return await sendMail({
       to: email,
-      subject: \`Welcome to Our Platform, \${username}!\`,
+      subject: `Welcome to Our Platform, ${username}!`,
       html: htmlContent,
     });
   } catch (error) {
-    console.error(\`✗ Error sending welcome email to \${email}:\`, error.message);
+    console.error(`✗ Error sending welcome email to ${email}:`, error.message);
     return { success: false, error: error.message };
   }
 };
@@ -171,7 +171,7 @@ export const sendBulkMails = async (emails) => {
     }
 
     const successCount = results.filter(r => r.success).length;
-    console.log(\`✓ Bulk email completed: \${successCount}/\${results.length} sent successfully\`);
+    console.log(`✓ Bulk email completed: ${successCount}/${results.length} sent successfully`);
     
     return {
       total: results.length,
