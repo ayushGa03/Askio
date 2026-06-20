@@ -25,6 +25,9 @@ try {
       user: process.env.GOOGLE_USER,
       pass: process.env.GOOGLE_APP_PASSWORD,
     },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
   });
 
   // Verify transporter configuration
