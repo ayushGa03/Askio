@@ -1,94 +1,54 @@
-import nodeMailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
-import dns from 'node:dns';
 
-dns.setDefaultResultOrder('ipv4first');
 dotenv.config();
 
-// Validate required environment variables
 const validateEmailConfig = () => {
-  const required = ['GOOGLE_USER', 'GOOGLE_APP_PASSWORD'];
-  const missing = required.filter(env => !process.env[env]);
-  
-  if (missing.length > 0) {
-    throw new Error(`Missing environment variables: ${missing.join(', ')}`);
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('Missing RESEND_API_KEY environment variable');
   }
 };
 
-// Create transporter with Gmail App Password
-let transporter;
-
+let resend;
 try {
   validateEmailConfig();
-  
-  transporter = nodeMailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.GOOGLE_USER,
-      pass: process.env.GOOGLE_APP_PASSWORD,
-    },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
-  });
-
-  // Verify transporter configuration
-  transporter.verify()
-    .then(() => {
-      console.log('✓ Email transporter is ready to send emails');
-    })
-    .catch((err) => {
-      console.error('✗ Email transporter verification failed:', err.message);
-    });
+  resend = new Resend(process.env.RESEND_API_KEY);
+  console.log('✓ Resend API is ready to send emails');
 } catch (error) {
-  console.error('✗ Failed to initialize email transporter:', error.message)
+  console.error('✗ Failed to initialize Resend:', error.message);
 }
 
-/**
- * Send email with enhanced error handling
- * @param {Object} options - Email options
- * @param {string} options.to - Recipient email address
- * @param {string} options.subject - Email subject
- * @param {string} options.html - Email HTML content
- * @param {string} [options.text] - Email text content (optional)
- * @returns {Promise<Object>} - Mail response or error
- */
 export const sendMail = async (options) => {
   try {
-    if (!transporter) {
-      throw new Error('Email transporter not initialized');
-    }
-
+    if (!resend) throw new Error('Resend API not initialized');
     if (!options.to || !options.subject || !options.html) {
       throw new Error('Missing required email fields: to, subject, or html');
     }
 
-    const mailOptions = {
-      from: process.env.GOOGLE_USER,
+    // Using the default onboarding domain provided by Resend.
+    // For a real app, you must verify your own domain in Resend and update this "from" address!
+    const fromAddress = 'Askio Support <onboarding@resend.dev>';
+
+    const data = await resend.emails.send({
+      from: fromAddress,
       to: options.to,
       subject: options.subject,
       html: options.html,
       ...(options.text && { text: options.text }),
-    };
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✓ Email sent successfully to ${options.to}:`, info.response);
-    return { success: true, messageId: info.messageId };
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+
+    console.log(`✓ Email sent successfully to ${options.to}`);
+    return { success: true, messageId: data.data?.id };
   } catch (error) {
     console.error(`✗ Error sending email to ${options.to}:`, error.message);
     return { success: false, error: error.message };
   }
 };
 
-/**
- * Send verification email with verification link
- * @param {string} email - User's email address
- * @param {string} username - User's username
- * @param {string} verificationToken - JWT verification token
- * @returns {Promise<Object>} - Mail response or error
- */
 export const sendVerificationEmail = async (email, username, verificationToken) => {
   try {
     const verificationLink = `${process.env.APP_URL || 'http://localhost:3030'}/api/auth/verify/${verificationToken}`;
@@ -136,24 +96,18 @@ export const sendVerificationEmail = async (email, username, verificationToken) 
 
     return await sendMail({
       to: email,
-      subject: `Email Verification - Welcome ${username}!`,
+      subject: \`Email Verification - Welcome \${username}!\`,
       html: htmlContent,
     });
   } catch (error) {
-    console.error(`✗ Error sending verification email to ${email}:`, error.message);
+    console.error(\`✗ Error sending verification email to \${email}:\`, error.message);
     return { success: false, error: error.message };
   }
 };
 
-/**
- * Send welcome email to new registered user
- * @param {string} email - User's email address
- * @param {string} username - User's username
- * @returns {Promise<Object>} - Mail response or error
- */
 export const sendWelcomeEmail = async (email, username) => {
   try {
-    const htmlContent = `
+    const htmlContent = \`
       <!DOCTYPE html>
       <html>
         <head>
@@ -172,14 +126,14 @@ export const sendWelcomeEmail = async (email, username) => {
               <h1>Welcome to Our Platform! 🎉</h1>
             </div>
             <div class="content">
-              <p>Hi <strong>${username}</strong>,</p>
+              <p>Hi <strong>\${username}</strong>,</p>
               <p>Thank you for registering! We're excited to have you on board.</p>
               <p>Your account has been successfully created and verified.</p>
               <p>You can now log in to your account and start exploring all the features we have to offer.</p>
               <p><strong>Account Details:</strong></p>
               <ul>
-                <li>Email: ${email}</li>
-                <li>Username: ${username}</li>
+                <li>Email: \${email}</li>
+                <li>Username: \${username}</li>
               </ul>
               <p>If you have any questions or need assistance, feel free to contact our support team.</p>
               <p>Happy exploring! 🚀</p>
@@ -191,15 +145,15 @@ export const sendWelcomeEmail = async (email, username) => {
           </div>
         </body>
       </html>
-    `;
+    \`;
 
     return await sendMail({
       to: email,
-      subject: `Welcome to Our Platform, ${username}!`,
+      subject: \`Welcome to Our Platform, \${username}!\`,
       html: htmlContent,
     });
   } catch (error) {
-    console.error(`✗ Error sending welcome email to ${email}:`, error.message);
+    console.error(\`✗ Error sending welcome email to \${email}:\`, error.message);
     return { success: false, error: error.message };
   }
 };
@@ -217,7 +171,7 @@ export const sendBulkMails = async (emails) => {
     }
 
     const successCount = results.filter(r => r.success).length;
-    console.log(`✓ Bulk email completed: ${successCount}/${results.length} sent successfully`);
+    console.log(\`✓ Bulk email completed: \${successCount}/\${results.length} sent successfully\`);
     
     return {
       total: results.length,
@@ -231,4 +185,4 @@ export const sendBulkMails = async (emails) => {
   }
 };
 
-export default transporter;
+export default resend;
