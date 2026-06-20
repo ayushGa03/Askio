@@ -54,13 +54,19 @@ export const register = async (req, res) => {
 
     if (!emailResult.success) {
       console.warn(`⚠ Verification email failed to send for ${username}`);
+      
+      // Rollback: Delete the user from the database so they can try again
+      await User.findByIdAndDelete(newUser._id);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Your account was not created. Please try again.",
+      });
     }
 
     return res.status(201).json({
       success: true,
-      message: emailResult.success 
-        ? "User registered successfully! A verification email has been sent to your email address. Please check your email and click the verification link to activate your account." 
-        : "User registered successfully, but verification email could not be sent. Please contact support.",
+      message: "User registered successfully! A verification email has been sent to your email address. Please check your email and click the verification link to activate your account.",
       emailSent: emailResult.success,
     });
   } catch (error) {
