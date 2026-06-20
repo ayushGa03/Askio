@@ -53,14 +53,14 @@ export const register = async (req, res) => {
     const emailResult = await sendVerificationEmail(email, username, verificationToken);
 
     if (!emailResult.success) {
-      console.warn(`⚠ Verification email failed to send for ${username}`);
+      console.warn(`⚠ Verification email failed to send for ${username}. Error: ${emailResult.error}`);
       
       // Rollback: Delete the user from the database so they can try again
       await User.findByIdAndDelete(newUser._id);
 
       return res.status(500).json({
         success: false,
-        message: "Failed to send verification email. Your account was not created. Please try again.",
+        message: `Failed to send verification email. Reason: ${emailResult.error}. Your account was not created.`,
       });
     }
 
