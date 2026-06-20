@@ -61,12 +61,6 @@ export const register = async (req, res) => {
       message: emailResult.success 
         ? "User registered successfully! A verification email has been sent to your email address. Please check your email and click the verification link to activate your account." 
         : "User registered successfully, but verification email could not be sent. Please contact support.",
-      user: {
-        id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-        verified: newUser.verified,
-      },
       emailSent: emailResult.success,
     });
   } catch (error) {
