@@ -1,6 +1,8 @@
 import nodeMailer from 'nodemailer';
 import dotenv from 'dotenv';
+import dns from 'node:dns';
 
+dns.setDefaultResultOrder('ipv4first');
 dotenv.config();
 
 // Validate required environment variables
