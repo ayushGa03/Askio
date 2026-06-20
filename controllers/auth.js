@@ -36,38 +36,32 @@ export const register = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      verified: false, // Initially not verified
+      verified: true, // Instantly verified (email verification disabled)
     });
 
     await newUser.save();
 
-    // Generate verification token (expires in 24 hours)
-    const verificationToken = jwt.sign(
+    // Generate JWT token for automatic login
+    const token = jwt.sign(
       { userId: newUser._id, email: newUser.email },
       process.env.JWT_SECRET || "your_jwt_secret_key",
-      { expiresIn: "24h" }
+      { expiresIn: "7d" }
     );
 
-    // Send verification email
-    console.log(`📧 Sending verification email to ${email}...`);
-    const emailResult = await sendVerificationEmail(email, username, verificationToken);
-
-    if (!emailResult.success) {
-      console.warn(`⚠ Verification email failed to send for ${username}. Error: ${emailResult.error}`);
-      
-      // Rollback: Delete the user from the database so they can try again
-      await User.findByIdAndDelete(newUser._id);
-
-      return res.status(500).json({
-        success: false,
-        message: `Failed to send verification email. Reason: ${emailResult.error}. Your account was not created.`,
-      });
-    }
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
 
     return res.status(201).json({
       success: true,
-      message: "User registered successfully! A verification email has been sent to your email address. Please check your email and click the verification link to activate your account.",
-      emailSent: emailResult.success,
+      message: "User registered successfully!",
+      token,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+      },
     });
   } catch (error) {
     console.error("Register error:", error.message);
