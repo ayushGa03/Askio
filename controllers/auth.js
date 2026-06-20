@@ -17,9 +17,15 @@ export const register = async (req, res) => {
 
     if (existingUser) {
       if (existingUser.email === email) {
+        if (existingUser.googleId) {
+          return res.status(409).json({
+            success: false,
+            message: "This email is associated with a Google account. Please log in with Google.",
+          });
+        }
         return res.status(409).json({
           success: false,
-          message: "Email is already registered. Please use a different email.",
+          message: "Email is already registered. Please log in instead.",
         });
       }
       return res.status(409).json({
