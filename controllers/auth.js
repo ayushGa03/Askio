@@ -252,23 +252,22 @@ export const googleAuth = async (req, res) => {
       });
     }
 
-    // REGISTER mode — user must NOT already exist
-    if (mode === "register" && user) {
-      return res.status(409).json({
-        success: false,
-        message: "This Google account is already registered. Please sign in instead.",
-        alreadyExists: true,
-      });
-    }
-
     if (user) {
-      // User exists — link Google ID if not already linked
-      if (!user.googleId) {
-        user.googleId = googleUser.googleId;
-        user.avatar = googleUser.avatar || user.avatar;
-        user.verified = true;
-        await user.save();
-        console.log(`✓ Linked Google account for existing user: ${user.username}`);
+      // Check if this email belongs to a normal (password-based) account that isn't linked to Google
+      if (user.password && !user.googleId) {
+        return res.status(409).json({
+          success: false,
+          message: "This email is registered with a password. Please use the normal login form.",
+        });
+      }
+
+      // REGISTER mode — user must NOT already exist
+      if (mode === "register") {
+        return res.status(409).json({
+          success: false,
+          message: "This Google account is already registered. Please sign in instead.",
+          alreadyExists: true,
+        });
       }
     } else {
       // New user — create account (Google-verified, no password needed)
